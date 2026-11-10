@@ -236,7 +236,7 @@ struct WidePair {
       : r(p), A(p.a.l), B(p.b.l), H(p.H), N(p.N), P(p.primitives.size()), C(p.a.c * p.b.c),
         center(p.a.r), cart{&p.E, &p.E64, &p.norm_cart, p.N},
         pure{p.pure_E.empty() ? &p.E : &p.pure_E, p.pure_E.empty() ? &p.E64 : &p.pure_E64,
-             (1 && p.pure_E.empty()) ? &p.norm_cart : &p.norm_pure, (2 * A + 1) * (2 * B + 1)} {
+             p.pure_E.empty() ? &p.norm_cart : &p.norm_pure, (2 * A + 1) * (2 * B + 1)} {
   }
   const auto &prim(size_t i) const {
     return r.primitives[i];
@@ -532,7 +532,7 @@ static S evaluate(const View &a, const View &b, const libgto_eri_options &o, con
         // Exact two-term ps/sp ket support, pure fs/sf bra only. The general
         // recurrence, unique-value conversion and error guard above also apply.
         // Use the prepared E64 view and ascending nonzero k order.
-        if (1 && pure && l.hab == 20 && l.nab == 7 && l.hcd == 4 && l.ncd == 3 &&
+        if (pure && l.hab == 20 && l.nab == 7 && l.hcd == 4 && l.ncd == 3 &&
             ((a.A == 3 && a.B == 0) || (a.A == 0 && a.B == 3)) &&
             ((b.A == 1 && b.B == 0) || (b.A == 0 && b.B == 1))) {
           const double *ec = b.ep64(pure, q);
@@ -557,9 +557,8 @@ static S evaluate(const View &a, const View &b, const libgto_eri_options &o, con
           }
           return true;
         }
-        if (1 && pure &&
-            angular_unique_R(l.hab, l.hcd, l.nab, l.ncd, coupled, scaled64, a.ep64(pure, p),
-                             b.ep64(pure, q), Ud, Gd)) {
+        if (pure && angular_unique_R(l.hab, l.hcd, l.nab, l.ncd, coupled, scaled64, a.ep64(pure, p),
+                                     b.ep64(pure, q), Ud, Gd)) {
           for (size_t v = 0; v < l.g; v++) {
             if (!std::isfinite(Gd[v]))
               return false;
@@ -723,7 +722,7 @@ static void publish(const libgto_pair &a, const libgto_pair &b, const libgto_eri
 
 void compute_high(const libgto_pair &a, const libgto_pair &b, const libgto_eri_options &o,
                   libgto_workspace &w, double *out, const Layout &l) {
-  if (1 && w.policy == LIBGTO_PRECISION_AUTO && (l.L & 1) && a.a.r == a.b.r && a.a.r == b.a.r &&
+  if (w.policy == LIBGTO_PRECISION_AUTO && (l.L & 1) && a.a.r == a.b.r && a.a.r == b.a.r &&
       a.a.r == b.b.r) {
     std::fill_n(out, l.public_size.elements, 0.);
     w.stats = {};

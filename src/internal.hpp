@@ -232,9 +232,6 @@ struct libgto_batch {
 namespace gto {
 
 inline bool prepared_angular_risk(const libgto_pair &a, const libgto_pair &b) {
-  {
-    {}
-  }
   const auto &x = a.numerics;
   const auto &y = b.numerics;
   if (a.sensitive || b.sensitive)
@@ -293,9 +290,6 @@ inline bool prepared_angular_risk(const libgto_pair &a, const libgto_pair &b) {
 
 inline bool needs_sensitive(const libgto_pair &a, const libgto_pair &b, const Layout &l,
                             libgto_precision_policy p) {
-  {
-    {}
-  }
   if (high_angular(a, b))
     return false;
   return p == LIBGTO_PRECISION_AUTO && l.L <= 8 &&

@@ -433,7 +433,7 @@ static bool primitive_r4(const libgto_pair &a, const libgto_pair &b, size_t p, s
   if (!std::isnormal(prefactor))
     return false;
   double F[5];
-  bool foundation_fast = 1 && quartic_boys::evaluate(T, F);
+  bool foundation_fast = quartic_boys::evaluate(T, F);
   if (!foundation_fast) {
     Real wide_boys[5];
     boys_real(4, Real(T), wide_boys);
@@ -598,7 +598,7 @@ static bool primitive_dd_moment(const libgto_pair &a, const libgto_pair &b, size
   if (!std::isnormal(prefactor))
     return false;
   double F[5];
-  bool fast = 1 && quartic_boys::evaluate(T, F);
+  bool fast = quartic_boys::evaluate(T, F);
   if (!fast) {
     Real f[5];
     boys_real(4, Real(T), f);
@@ -654,7 +654,7 @@ static bool primitive_fp64(const libgto_pair &a, const libgto_pair &b, size_t p,
   if (l.L == 4) {
     double *g = scratch + 2 * l.u, *ge = g + l.g;
     bool success = false;
-    if (projected && l.hab == 10 && l.hcd == 10 && l.nab == 5 && l.ncd == 5 && 2 == 2 &&
+    if (projected && l.hab == 10 && l.hcd == 10 && l.nab == 5 && l.ncd == 5 &&
         primitive_dd_moment(a, b, p, q, l, g, ge, budget))
       return true;
     if (l.hab == 10 && l.hcd == 10 && l.nab == 5 && l.ncd == 5)
@@ -1245,17 +1245,14 @@ static bool compute_projected(const libgto_pair &a, const libgto_pair &b,
       if (s->norm == LIBGTO_NORMALIZED_PRIMITIVES && s->l == 2)
         monitor_budget /= std::sqrt(3.);
 
-  const bool legacy_ordered = l.L == 5 &&
-                              ((l.nab == 9 && l.ncd == 15) || (l.nab == 15 && l.ncd == 9)) &&
-                              (1 == 1 || (1 == 3 && a.a.r != a.b.r && b.a.r != b.b.r));
+  const bool legacy_ordered =
+      l.L == 5 && ((l.nab == 9 && l.ncd == 15) || (l.nab == 15 && l.ncd == 9));
 
   const bool scoped_shape = (l.hab == 20 && l.hcd == 20) ||
                             (l.hab == 10 && l.nab == 9 && l.hcd == 35) ||
                             (l.hab == 35 && l.hcd == 10 && l.ncd == 9) ||
                             (l.hab == 20 && l.hcd == 35) || (l.hab == 35 && l.hcd == 20);
-  const bool added_ordered = (3 == 1 && l.L == 6 && l.nab == 15 && l.ncd == 15) ||
-                             (3 == 2 && l.L >= 5 && l.L <= 7 && l.hab > 1 && l.hcd > 1) ||
-                             (3 == 3 && scoped_shape);
+  const bool added_ordered = scoped_shape;
   const bool use_added_ordered = added_ordered && ordered_environment();
   const bool dsdp_shape = (l.hab == 10 && l.nab == 5 && l.hcd == 20 && l.ncd == 15) ||
                           (l.hab == 20 && l.nab == 15 && l.hcd == 10 && l.ncd == 5);
@@ -1267,11 +1264,11 @@ static bool compute_projected(const libgto_pair &a, const libgto_pair &b,
                         ((l.hcd == 35 && l.ncd == 25) ||
                          (l.hcd == 20 && l.ncd == 15 && (a.a.r == a.b.r || b.a.r == b.b.r)));
   const bool ket_shape = l.hab == 35 && l.nab == 25 && l.hcd == 4 && l.ncd == 3;
-  const bool ps_bra = (((7 & 1) && ps_shape) || ((7 & 2) && ds_shape) || ((7 & 4) && ket_shape)) &&
-                      o.representation == LIBGTO_PURE && ordered_environment();
-  const bool defer_clear = ordered_angular && 1;
+  const bool ps_bra = (ps_shape || ds_shape || ket_shape) && o.representation == LIBGTO_PURE &&
+                      ordered_environment();
+  const bool defer_clear = ordered_angular;
   bool local_wide = false;
-  const bool uniform_enabled = 1 && l.L >= 5 && l.L <= 7 && ordered_environment();
+  const bool uniform_enabled = l.L >= 5 && l.L <= 7 && ordered_environment();
   double uniform_error = std::numeric_limits<double>::quiet_NaN();
   auto evaluate = [&](size_t p, size_t q) {
     double t = o.profile ? now() : 0;
@@ -1736,7 +1733,7 @@ static void compute_impl(const libgto_pair &a, const libgto_pair &b, const libgt
   bool ddshape = o.representation == LIBGTO_PURE && l.L == 4 && l.hab == 10 && l.hcd == 10 &&
                  l.nab == 5 && l.ncd == 5;
 
-  bool fast = (l.g > 1 && (l.nab >= 9 || l.ncd >= 9)) || (ddshape && (2 == 1 || 2 == 2));
+  bool fast = (l.g > 1 && (l.nab >= 9 || l.ncd >= 9)) || ddshape;
   if (fast && (!a.fp64_safe || !b.fp64_safe)) {
     ++w.precision.fp64_fallbacks;
     ++w.precision.wide_calls;

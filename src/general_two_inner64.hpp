@@ -10,9 +10,6 @@ static bool two_p_panel_eligible(const libgto_pair &a, const libgto_pair &b,
 static bool contract_two_p_panel(const libgto_pair &a, const libgto_pair &b,
                                  const libgto_eri_options &o, libgto_workspace &w, double *out,
                                  const Layout &l) {
-  {
-    {}
-  }
   size_t P = a.primitives.size(), Q = b.primitives.size(), total = P * Q;
   bool abfirst = l.abfirst;
   size_t inner = abfirst ? P : Q, outer = abfirst ? Q : P, ni = abfirst ? l.cab : l.ccd,
