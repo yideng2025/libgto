@@ -1,4 +1,3 @@
-
 #include "internal.hpp"
 #include "boys_table.hpp"
 #include <cstdint>
@@ -37,6 +36,7 @@ static void boys(double T, double &f0, double &f1) {
     f1 = (f0 - std::exp(-T)) / (2 * T);
   }
 }
+
 struct Packet {
   double X[3][64], E0[3][64], E1[3][64], M[3][64], G[3][64], T[64], rho[64], pref[64], F0[64],
       F1[64], M0[64], err[64], maxm[64], na[64], nb[64], budget[64];
@@ -44,7 +44,6 @@ struct Packet {
   const libgto_eri_task *task[64]{};
   bool ket[64]{}, valid[64]{};
 };
-
 
 static void angular_moment(Packet &p, size_t n) {
   constexpr double eps = std::numeric_limits<double>::epsilon();
@@ -73,6 +72,9 @@ static void angular_moment(Packet &p, size_t n) {
         p.valid[k] = false;
   }
 }
-static void angular(Packet &p, size_t n) { angular_moment(p, n); }
+
+static void angular(Packet &p, size_t n) {
+  angular_moment(p, n);
+}
 
 }

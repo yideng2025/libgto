@@ -23,6 +23,7 @@ static void pack_two_p_moment(two_p_moment::Packet &p, size_t k, const libgto_pa
   p.nb[k] = b.norm_cart[iq * (b.N + 1)];
   p.budget[k] = budget;
 }
+
 static bool compute_two_p_moment_panel(const libgto_pair &a, const libgto_pair &b,
                                        const libgto_eri_options &o, libgto_workspace &w,
                                        double *out, const Layout &l) {

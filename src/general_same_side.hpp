@@ -1,5 +1,3 @@
-
-
 static void pack_same_pair(same_pair_moment::Packet &p, size_t k, const libgto_pair &a,
                            const libgto_pair &b, size_t ip, size_t iq, double budget) {
   bool flip = a.a.l + a.b.l == 0;
@@ -38,6 +36,7 @@ static void pack_same_pair(same_pair_moment::Packet &p, size_t k, const libgto_p
                 std::isfinite(p.T[k]) && p.T[k] >= 0;
   p.budget[k] = budget;
 }
+
 static bool compute_same_pair_panel(const libgto_pair &a, const libgto_pair &b,
                                     const libgto_eri_options &o, libgto_workspace &w, double *out,
                                     const Layout &l) {

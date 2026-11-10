@@ -1,4 +1,3 @@
-
 #pragma once
 #include "internal.hpp"
 namespace quadratic_pair {

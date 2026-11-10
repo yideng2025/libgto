@@ -1,4 +1,4 @@
-// Private autonomous one-primitive/channel p-s | s-p family. C++17, scalar fallback.
+// One-primitive/channel p-s | s-p kernel with a portable scalar fallback.
 #include "internal.hpp"
 #include "boys_table.hpp"
 namespace two_p {
@@ -41,6 +41,7 @@ static void boys(double T, double *F) {
       F[m + 1] = ((2 * m + 1) * F[m] - e) / (2 * T);
   }
 }
+
 struct Packet {
   double X[3][64], a0[3][64], a1[3][64], c0[3][64], c1[3][64], R[15][64], ER[15][64], S[10][64],
       U[12][64], G[9][64], T[64], rho[64], pref[64], budget[64], na[64], nb[64], maxm[64], err[64],

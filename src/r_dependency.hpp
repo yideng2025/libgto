@@ -18,6 +18,7 @@ constexpr Triple hermite_triple(int index) {
   }
   return {0, 0, 0};
 }
+
 template <class Offsets, class Emit>
 constexpr void emit_r_dependencies(int L, const Offsets &offset, Emit emit) {
   for (int m = L - 1; m >= 0; m--)

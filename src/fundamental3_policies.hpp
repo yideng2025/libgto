@@ -27,6 +27,7 @@ static void wide(double t, double *F) {
   for (int m = 0; m < 4; m++)
     F[m] = double(v[m]);
 }
+
 struct BoysTable {
   double f[65][18]{};
   constexpr BoysTable() {
@@ -62,6 +63,7 @@ static void high_boys(double t, double *f, bool omit_exp) {
     f[m + 1] = hi;
   }
 }
+
 static void boys64(double t, double *f, int policy) {
   if (t >= 32) {
     high_boys(t, f, policy >= 3);
@@ -82,6 +84,7 @@ static void boys64(double t, double *f, int policy) {
   for (int m = 3; m > 0; m--)
     f[m - 1] = (2 * t * f[m] + e) / (2 * m - 1);
 }
+
 static void evaluate(int policy, double t, double *f) {
   if (policy && t >= 0 && (t < 32 || (policy >= 2 && t < 1e8)))
     boys64(t, f, policy);

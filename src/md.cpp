@@ -63,9 +63,8 @@ static unsigned first_set_bit(uint64_t v) {
 }
 
 // McMurchie and Davidson, J. Comput. Phys. 26 (1978), 218-231,
-// doi:10.1016/0021-9991(78)90092-X. Direct scalar Hermite expansion;
-
-// Boys constants are reproduced by the included C++17 generator.
+// doi:10.1016/0021-9991(78)90092-X. The scalar Hermite expansion uses
+// Boys constants reproduced by the included C++17 generator.
 std::vector<Triple> orbitals(int L) {
   std::vector<Triple> result;
   for (int x = L; x >= 0; --x)
@@ -73,6 +72,7 @@ std::vector<Triple> orbitals(int L) {
       result.push_back({x, y, L - x - y});
   return result;
 }
+
 std::vector<Triple> hermites(int L) {
   std::vector<Triple> result;
   for (int degree = 0; degree <= L; ++degree)
@@ -81,6 +81,7 @@ std::vector<Triple> hermites(int L) {
         result.push_back({x, y, degree - x - y});
   return result;
 }
+
 static void boys_real(unsigned m, Real T, Real *f) {
   if (T == 0) {
     for (unsigned n = 0; n <= m; n++)
@@ -108,12 +109,14 @@ static void boys_real(unsigned m, Real T, Real *f) {
   for (unsigned n = 0; n < m; ++n)
     f[n + 1] = ((2 * n + 1) * f[n] - e) / (2 * T);
 }
+
 void boys(unsigned m, double T, double *f) {
   Real values[9];
   boys_real(m, T, values);
   for (unsigned i = 0; i <= m; ++i)
     f[i] = static_cast<double>(values[i]);
 }
+
 struct Angular {
   std::array<Triple, 165> h{};
   std::array<std::array<Triple, 6>, 3> cart{};
@@ -233,6 +236,7 @@ static Real coulomb_r(const libgto_pair &a, const libgto_pair &b, size_t p, size
   Real prefactor = 2 * std::pow(pi, 2.5L) / (x.p * y.p * std::sqrt(x.p + y.p)) * x.K * y.K;
   return prefactor;
 }
+
 static void coulomb(const libgto_pair &a, const libgto_pair &b, size_t p, size_t q, const Layout &l,
                     Real *R, Real *M) {
   Real prefactor = coulomb_r(a, b, p, q, l, R);
@@ -306,6 +310,7 @@ static unsigned first_bit(uint64_t bits) {
   return n;
 #endif
 }
+
 static void primitive(const libgto_pair &a, const libgto_pair &b, size_t p, size_t q,
                       const Layout &l, Real *R, Real *M, Real *U, Real *G, bool projected) {
   coulomb(a, b, p, q, l, R, M);
@@ -401,6 +406,7 @@ static void dense_fixed(double *GTO_RESTRICT U, double *GTO_RESTRICT g,
         g[a + A * c] += ea[h * A + a] * u;
     }
 }
+
 #undef GTO_RESTRICT
 template <int H, int K, int A, int C>
 static bool primitive_r4(const libgto_pair &a, const libgto_pair &b, size_t p, size_t q,
@@ -643,8 +649,8 @@ static bool primitive_fp64(const libgto_pair &a, const libgto_pair &b, size_t p,
                            bool ps_bra = false) {
   if (uniform_error)
     *uniform_error = std::numeric_limits<double>::quiet_NaN();
-  // Isolate the L4 auxiliary precision change; keep the parent's monitored
-  // FP64 channel accumulators. A rejected R4 attempt uses the old wide-R path.
+  // The L4 auxiliary path retains monitored FP64 channel accumulators.
+  // Rejected attempts use wide R with the same channel accumulation order.
   if (l.L == 4) {
     double *g = scratch + 2 * l.u, *ge = g + l.g;
     bool success = false;
@@ -688,7 +694,7 @@ static bool primitive_fp64(const libgto_pair &a, const libgto_pair &b, size_t p,
     if (success)
       return true;
   }
-  // Unique signed-R conversion pays only when it reduces the cast count.
+  // Reuse signed R values only when this reduces the number of conversions.
   bool reuse = l.m > 2 * size_t(nh(l.L));
   Real prefactor = 0;
   if (reuse)
@@ -941,9 +947,9 @@ static bool primitive_fp64(const libgto_pair &a, const libgto_pair &b, size_t p,
   return true;
 }
 
-// wide precision before rounding. Geometry, Boys, recurrence and angular casts
-// enter an absolute forward-error majorant; wide contraction is unchanged.
-// This finite-domain monitor is an empirical guard, not an accuracy certificate.
+// The table rounds the wide Boys constants to binary64. Primitive evaluation
+// monitors geometry, Boys, recurrence and angular casts with an empirical
+// forward-error indicator; it is not an accuracy certificate.
 struct LowBoysTable {
   std::array<std::array<double, 18>, 65> f{};
   constexpr LowBoysTable() {
@@ -1016,6 +1022,7 @@ static LowContext low_context(const libgto_pair &a, const libgto_pair &b, bool p
     c.delta[d] = a.a.r[d] - b.a.r[d];
   return c;
 }
+
 template <int H, int K, int A, int C, int L, class Output = Real>
 static bool primitive_low_fixed(const LowContext &ctx, size_t p, size_t q, Output *G,
                                 double budget) {
@@ -1508,6 +1515,7 @@ static inline void wide_update(size_t n, Real weight, const Input *src, Real *ds
   for (size_t v = 0; v < n; v++)
     dst[v] += weight * src[v];
 }
+
 #include "scaled_low.hpp"
 #include "general_zero_packet.hpp"
 #include "general_single_scaled.hpp"
@@ -1619,6 +1627,7 @@ static bool compute_low_storage_impl(const libgto_pair &a, const libgto_pair &b,
   }
   return store_md_eri_output(a, b, o, w, contracted, stage, out, l);
 }
+
 static bool compute_low_storage(const libgto_pair &a, const libgto_pair &b,
                                 const libgto_eri_options &o, libgto_workspace &w, double *out,
                                 const Layout &l) {
@@ -1631,6 +1640,7 @@ static bool compute_low_storage(const libgto_pair &a, const libgto_pair &b,
   }
   return compute_low_storage_impl<0>(a, b, o, w, out, l);
 }
+
 static void compute_impl(const libgto_pair &a, const libgto_pair &b, const libgto_eri_options &o,
                          libgto_workspace &w, double *out, const Layout &l) {
   if (w.policy == LIBGTO_PRECISION_REFERENCE) {
@@ -1749,6 +1759,7 @@ static void compute_impl(const libgto_pair &a, const libgto_pair &b, const libgt
   w.stats.contraction_seconds += partial.contraction_seconds;
   w.stats.transform_seconds += partial.transform_seconds;
 }
+
 void compute_bound(const libgto_pair &a, const libgto_pair &b, const libgto_eri_options &o,
                    libgto_workspace &w, double *out, const Layout &l, bool requires_raw) {
   if (high_angular(a, b)) {
@@ -1769,12 +1780,13 @@ void compute_bound(const libgto_pair &a, const libgto_pair &b, const libgto_eri_
     ++w.precision.wide_calls;
     return;
   }
-  // Layout/output dimensions and contraction direction stay those of the parent.
+  // Optimized pairs retain the original output shape and contraction direction.
   // Only the primitive geometry summation indices are reduced, with exact factors.
   const auto &aa = a.optimized ? *a.optimized : a;
   const auto &bb = b.optimized ? *b.optimized : b;
   compute_impl(aa, bb, o, w, out, l);
 }
+
 void compute(const libgto_pair &a, const libgto_pair &b, const libgto_eri_options &o,
              libgto_workspace &w, double *out, const Layout &l) {
   compute_bound(a, b, o, w, out, l, needs_sensitive(a, b, l, w.policy));

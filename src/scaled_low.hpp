@@ -73,6 +73,7 @@ static bool compute_scaled_low(const LowContext &ctx, size_t p, size_t q, Real *
 
   return true;
 }
+
 static bool compute_scaled_scalar(const LowContext &ctx, size_t p, size_t q, Real *out,
                                   double budget) {
   const auto &x = ctx.pa[p];
@@ -103,8 +104,8 @@ static bool compute_scaled_scalar(const LowContext &ctx, size_t p, size_t q, Rea
   Real value = pref * Real(F[0]);
   if (!std::isnormal(value))
     return false;
-  // The old budget and larger relative envelope are retained. This empirical
-  // monitor is checked in wide arithmetic, before amplitude can underflow FP64.
+  // Check the absolute budget with the relative envelope in wide arithmetic,
+  // before the amplitude can underflow FP64. This monitor remains empirical.
   Real error = std::abs(value) *
                (Real(256) * std::numeric_limits<double>::epsilon() * (1 + std::min(T, .5))) *
                Real(ctx.an[p * 2]) * Real(ctx.bn[q * 2]);

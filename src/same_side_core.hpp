@@ -19,6 +19,7 @@ template <int I, int J> static void pp(Packet &p, size_t n) {
     p.G[I + 3 * J][k] = p.pref[k] * ((q0 * p.F[0][k] + q1 * p.F[1][k]) + q2 * p.F[2][k]);
   }
 }
+
 template <int M> static void d(Packet &p, size_t n) {
   constexpr double rt = 1.7320508075688772935274463415058723669;
   for (size_t k = 0; k < n; k++) {
@@ -52,6 +53,7 @@ template <int M> static void d(Packet &p, size_t n) {
     p.G[M][k] = p.pref[k] * ((q0 * p.F[0][k] + q1 * p.F[1][k]) + q2 * p.F[2][k]);
   }
 }
+
 static void angular(Packet &p, size_t n, bool single_d) {
   for (size_t k = 0; k < n; k++) {
     double f[3]{};

@@ -94,7 +94,7 @@ static void execute_legacy(libgto_batch *b, const libgto_eri_task *t, size_t n) 
   gto::require(!status.load(), static_cast<libgto_status>(status.load()));
 }
 
-// allocation requirements pass a collective barrier before any output write.
+// Preflight validation and workspace allocation complete before any output write.
 // Each copied layout is shape-only; no cached plan or pair data is mutated.
 static bool execute_parallel_preflight(libgto_batch *b, const libgto_eri_task *t, size_t n) {
 #ifndef _OPENMP
@@ -261,6 +261,7 @@ static bool execute_parallel_preflight(libgto_batch *b, const libgto_eri_task *t
   return true;
 #endif
 }
+
 void execute_batch(libgto_batch *b, const libgto_eri_task *t, size_t n) {
   require(b && (!n || t));
   if (!n)

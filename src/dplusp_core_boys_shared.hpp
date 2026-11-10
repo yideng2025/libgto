@@ -40,6 +40,7 @@ template <int M, int K> static double gradient(const Packet &p, size_t k) {
   }
   return 0;
 }
+
 template <int M, int K> static void emit(Packet &p, size_t k, double h, double j) {
   double value = p.c[K][k] * h + p.z[K][k] * j;
   if constexpr ((M == 0 && K != 2) || (M == 1 && K != 0) || M == 2 || (M == 3 && K != 1) ||
@@ -47,6 +48,7 @@ template <int M, int K> static void emit(Packet &p, size_t k, double h, double j
     value += p.cross[k] * gradient<M, K>(p, k);
   p.G[M + 5 * K][k] = p.pref[k] * value;
 }
+
 template <int M> static void component(Packet &p, size_t n) {
   for (size_t k = 0; k < n; k++) {
     double ax = p.a[0][k], ay = p.a[1][k], az = p.a[2][k], vx = p.v[0][k], vy = p.v[1][k],
@@ -83,6 +85,7 @@ template <int M> static void component(Packet &p, size_t n) {
     emit<M, 2>(p, k, h, j);
   }
 }
+
 static void angular(Packet &p, size_t n) {
   constexpr double eps = std::numeric_limits<double>::epsilon();
   const int policy = 2;

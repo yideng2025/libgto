@@ -16,26 +16,31 @@ template <class S> static S root(const S &x) {
   using std::sqrt;
   return sqrt(x);
 }
+
 template <class S> static S ex(const S &x) {
   using std::exp;
   return exp(x);
 }
+
 template <class S> static S ab(const S &x) {
   using std::abs;
   return abs(x);
 }
+
 static long double fac(int n) {
   long double x = 1;
   for (int j = 2; j <= n; j++)
     x *= j;
   return x;
 }
+
 static Real odd_df(int l) {
   Real x = 1;
   for (int j = 2 * l - 1; j > 1; j -= 2)
     x *= j;
   return x;
 }
+
 template <class S> static std::vector<S> harmonic(int l) {
   auto cart = orbitals(l);
   int nc = ncart(l);
@@ -82,10 +87,12 @@ template <class S> static std::vector<S> harmonic(int l) {
   }
   return t;
 }
+
 template <class S> struct HPrimitive {
   S p, K;
   std::array<S, 3> offset;
 };
+
 template <class S> struct RawPair {
   int A = 0, B = 0, H = 0, N = 0;
   size_t P = 0, C = 0;
@@ -184,6 +191,7 @@ template <class S> struct RawPair {
     return (pure ? pure_E.data() : E.data()) + p * H * (pure ? (2 * A + 1) * (2 * B + 1) : N);
   }
 };
+
 struct HighScratch {
   RawPair<HighMP> a, b;
   std::vector<HighMP> arena;
@@ -194,6 +202,7 @@ size_t high_scratch_bytes(const libgto_workspace &w) noexcept {
                       w.high->arena.capacity() * sizeof(HighMP)
                 : 0;
 }
+
 size_t high_shape_mp_bytes(const QuartetShape &s, const Layout &l) {
   size_t n = add(l.total, 4096), temporary = 0;
   for (int side = 0; side < 2; side++) {
@@ -206,9 +215,11 @@ size_t high_shape_mp_bytes(const QuartetShape &s, const Layout &l) {
   }
   return add(sizeof(HighScratch), mul(add(n, temporary), sizeof(HighMP)));
 }
+
 size_t high_mp_bytes(const libgto_pair &a, const libgto_pair &b, const Layout &l) {
   return high_shape_mp_bytes(quartet_shape(a, b), l);
 }
+
 struct AngularView {
   const std::vector<Real> *E;
   const std::vector<double> *rounded;
@@ -225,7 +236,8 @@ struct WidePair {
       : r(p), A(p.a.l), B(p.b.l), H(p.H), N(p.N), P(p.primitives.size()), C(p.a.c * p.b.c),
         center(p.a.r), cart{&p.E, &p.E64, &p.norm_cart, p.N},
         pure{p.pure_E.empty() ? &p.E : &p.pure_E, p.pure_E.empty() ? &p.E64 : &p.pure_E64,
-             (1 && p.pure_E.empty()) ? &p.norm_cart : &p.norm_pure, (2 * A + 1) * (2 * B + 1)} {}
+             (1 && p.pure_E.empty()) ? &p.norm_cart : &p.norm_pure, (2 * A + 1) * (2 * B + 1)} {
+  }
   const auto &prim(size_t i) const {
     return r.primitives[i];
   }
@@ -280,7 +292,8 @@ template <class S> struct MPView {
   size_t P, C;
   std::array<S, 3> center;
   MPView(const RawPair<S> &v)
-      : r(v), A(v.A), B(v.B), H(v.H), N(v.N), P(v.P), C(v.C), center(v.center) {}
+      : r(v), A(v.A), B(v.B), H(v.H), N(v.N), P(v.P), C(v.C), center(v.center) {
+  }
   const auto &prim(size_t i) const {
     return r.primitives[i];
   }
@@ -291,6 +304,7 @@ template <class S> struct MPView {
     return r.weights[p + r.P * c];
   }
 };
+
 using HighRStep = HermiteRStep;
 struct HighRPlan {
   std::vector<int> offset;
@@ -309,6 +323,7 @@ static const HighRPlan &hplan(int l) {
       HighRPlan(12), HighRPlan(13), HighRPlan(14), HighRPlan(15), HighRPlan(16)};
   return p[l];
 }
+
 static const std::vector<unsigned short> &coupling(int A, int B) {
   static const std::array<std::vector<unsigned short>, 81> maps = []() {
     std::array<std::vector<unsigned short>, 81> r;
@@ -324,6 +339,7 @@ static const std::vector<unsigned short> &coupling(int A, int B) {
   }();
   return maps[A * 9 + B];
 }
+
 template <class S> static void fundamental(int m, S T, S *f) {
   if (T == 0) {
     for (int i = 0; i <= m; i++)
@@ -359,6 +375,7 @@ template <class S> static void fundamental(int m, S T, S *f) {
 bool high_angular(const libgto_pair &a, const libgto_pair &b) {
   return a.a.l > 2 || a.b.l > 2 || b.a.l > 2 || b.b.l > 2;
 }
+
 void prepare_high_pair(libgto_pair &r) {
   { coupling(r.a.l + r.b.l, 0); }
   RawPair<Real> p;
@@ -413,6 +430,7 @@ void prepare_high_pair(libgto_pair &r) {
     r.norm_pure[z * (pa * pb + 1)] = up(puremax);
   }
 }
+
 template <class S, class View, bool Narrow = false, int Blocked = 0>
 static S evaluate(const View &a, const View &b, const libgto_eri_options &o, const Layout &l,
                   S *arena, double *fast = nullptr, size_t *attempted = nullptr) {
@@ -500,7 +518,7 @@ static S evaluate(const View &a, const View &b, const libgto_eri_options &o, con
       if (coupled && coupling_strategy == 3 && reuse_casts) {
         // Every final spatial index occurs in the unrestricted coupling map.
         // Nearest rounding commutes with a sign flip, including signed zero.
-        // Check/cast each unique value once; other rounding modes keep the old path.
+        // Check and convert each unique value once; other rounding modes use wide values.
         double scaled64[nh(16)];
         for (int h = 0; h < nh(l.L); h++) {
           Real z = R[h];
@@ -512,8 +530,8 @@ static S evaluate(const View &a, const View &b, const libgto_eri_options &o, con
           scaled64[h] = v;
         }
         // Exact two-term ps/sp ket support, pure fs/sf bra only. The general
-        // recurrence, unique-value conversion and complete old error guard above
-        // are unchanged. Keep the original E64 view and ascending nonzero k order.
+        // recurrence, unique-value conversion and error guard above also apply.
+        // Use the prepared E64 view and ascending nonzero k order.
         if (1 && pure && l.hab == 20 && l.nab == 7 && l.hcd == 4 && l.ncd == 3 &&
             ((a.A == 3 && a.B == 0) || (a.A == 0 && a.B == 3)) &&
             ((b.A == 1 && b.B == 0) || (b.A == 0 && b.B == 1))) {
@@ -653,6 +671,7 @@ static S evaluate(const View &a, const View &b, const libgto_eri_options &o, con
       return std::numeric_limits<Real>::infinity();
   return (max_component ? majorant : std::max(magnitude, majorant)) * monitor_scale;
 }
+
 template <class S>
 static void publish(const libgto_pair &a, const libgto_pair &b, const libgto_eri_options &o,
                     const Layout &l, const S *from, double *out) {
@@ -701,6 +720,7 @@ static void publish(const libgto_pair &a, const libgto_pair &b, const libgto_eri
               out[dst] = static_cast<double>(v);
             }
 }
+
 void compute_high(const libgto_pair &a, const libgto_pair &b, const libgto_eri_options &o,
                   libgto_workspace &w, double *out, const Layout &l) {
   if (1 && w.policy == LIBGTO_PRECISION_AUTO && (l.L & 1) && a.a.r == a.b.r && a.a.r == b.a.r &&

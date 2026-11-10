@@ -394,6 +394,7 @@ namespace {
 inline double signed_unique(const double *v, unsigned code, int nr) {
   return v[(code & 0x7fff) + ((code & 0x8000) ? nr : 0)];
 }
+
 inline unsigned compact_first_bit(std::uint64_t v) {
 #if defined(__GNUC__) || defined(__clang__)
   return unsigned(__builtin_ctzll(v));
@@ -420,6 +421,7 @@ void angular_ps_dd_bra_unique(const unsigned short *codes, const double *values,
     }
   angular_bra_ordered(35, 3, 25, V, D, G);
 }
+
 void angular_dd_ps_ket_unique(const unsigned short *codes, const double *values, const double *E,
                               const double *D, double *U, double *G) {
   for (int h = 0; h < 35; h++)
@@ -435,6 +437,7 @@ void angular_dd_ps_ket_unique(const unsigned short *codes, const double *values,
     }
   angular_bra_ordered(35, 25, 3, E, U, G);
 }
+
 void angular_ds_bra_unique(int K, const unsigned short *codes, const double *values,
                            const double *E, const double *D, const std::uint64_t *mask, double *V,
                            double *G) {

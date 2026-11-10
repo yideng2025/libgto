@@ -27,6 +27,7 @@ static void pack_single_p(single_p::Packet &p, size_t k, const libgto_pair &a, c
   p.nb[k] = b.norm_cart[iq * (b.N + 1)];
   p.budget[k] = budget;
 }
+
 static bool compute_single_p_panel(const libgto_pair &a, const libgto_pair &b,
                                    const libgto_eri_options &o, libgto_workspace &w, double *out,
                                    const Layout &l) {

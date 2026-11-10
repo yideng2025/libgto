@@ -43,9 +43,11 @@ static Layout make_layout(const QuartetShape &s, const libgto_eri_options &o, bo
       add(mul(l.total, sizeof(Real)), mul(add(l.borrowed, l.fast), sizeof(double)));
   return l;
 }
+
 void require_md_angular_momentum(int l) {
   require(l >= 0 && l <= 4, LIBGTO_UNSUPPORTED);
 }
+
 QuartetShape quartet_shape(const libgto_pair &a, const libgto_pair &b) {
   const Shell *ss[4] = {&a.a, &a.b, &b.a, &b.b};
   QuartetShape s;
@@ -57,6 +59,7 @@ QuartetShape quartet_shape(const libgto_pair &a, const libgto_pair &b) {
   }
   return s;
 }
+
 MathRequest eri_request(const libgto_eri_options &o, libgto_precision_policy p) {
   MathRequest r;
   r.representation = o.representation;
@@ -64,6 +67,7 @@ MathRequest eri_request(const libgto_eri_options &o, libgto_precision_policy p) 
   r.contraction_order = o.contraction_order;
   return r;
 }
+
 static Layout storage_for(const QuartetShape &s, const libgto_eri_options &o) {
   auto l = make_layout(s, o, o.representation == LIBGTO_PURE);
   if (o.representation == LIBGTO_PURE && *std::max_element(s.l.begin(), s.l.end()) <= 2) {
@@ -83,6 +87,7 @@ static Layout storage_for(const QuartetShape &s, const libgto_eri_options &o) {
     l.public_size.workspace_bytes = add(l.public_size.workspace_bytes, high_shape_mp_bytes(s, l));
   return l;
 }
+
 FamilyPlan resolve_plan(const MathRequest &r, const QuartetShape &s) {
   require(r.op == OperatorKind::Coulomb && r.rank == 4 && r.derivative_order == 0,
           LIBGTO_UNSUPPORTED);
@@ -96,9 +101,11 @@ FamilyPlan resolve_plan(const MathRequest &r, const QuartetShape &s) {
   }
   return {r, s, storage_for(s, {r.representation, r.contraction_order, 0})};
 }
+
 Layout layout_reference(const libgto_pair &a, const libgto_pair &b, const libgto_eri_options &o) {
   return make_layout(quartet_shape(a, b), o, false);
 }
+
 Layout layout(const libgto_pair &a, const libgto_pair &b, const libgto_eri_options &o,
               libgto_precision_policy p) {
   (void)p;

@@ -5,9 +5,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/* The library evaluates four-center Coulomb ERIs only; no screening is applied.
-   Inputs and returned values must use atomic units. Concurrent calls require
-   distinct workspaces or batch handles. The API is under active development. */
+/* Four-center Coulomb ERIs for real Cartesian or solid-harmonic shells through
+   g (l <= 4), without screening. Inputs and outputs use double and atomic units.
+   Concurrent calls require distinct workspaces or batch handles. The API is
+   under active development. */
 /* C-compatible integer enums. A fixed C++ underlying type lets the C boundary
    validate out-of-range integer inputs without first invoking C++ enum UB. */
 #ifdef __cplusplus
@@ -15,21 +16,28 @@ extern "C" {
 #else
 #define LIBGTO_ENUM enum
 #endif
-/* Atomic units; Cartesian and real solid-harmonic shells through g (l <= 4). No implicit
-   contraction normalization. Double input/output. AUTO selects monitored FP64, long-double, or
-   local fixed-precision reconstruction according to numerical features and shape. The f/g path
-   retains wide auxiliaries/weights, monitored FP64 angular products, and raw-input 512-bit
-   reconstruction. Pair preparation and selected auxiliary stages retain long double. REFERENCE
-   retains the original long-double path; it is not an exact oracle for arbitrary
-   cancellation. Effective long-double precision is platform dependent. */
-typedef LIBGTO_ENUM{LIBGTO_SUCCESS = 0,          LIBGTO_INVALID_ARGUMENT = 1,
-                    LIBGTO_UNSUPPORTED = 2,      LIBGTO_ALLOCATION_FAILED = 3,
-                    LIBGTO_BUFFER_TOO_SMALL = 4, LIBGTO_NUMERICAL_FAILURE = 5,
-                    LIBGTO_RESOURCE_LIMIT = 6} libgto_status;
-typedef LIBGTO_ENUM{LIBGTO_CARTESIAN = 0, LIBGTO_PURE = 1} libgto_representation;
-typedef LIBGTO_ENUM{LIBGTO_UNNORMALIZED = 0, LIBGTO_NORMALIZED_PRIMITIVES = 1} libgto_normalization;
-typedef LIBGTO_ENUM{LIBGTO_CONTRACT_AUTO = 0, LIBGTO_AB_FIRST = 1,
-                    LIBGTO_CD_FIRST = 2} libgto_contraction_order;
+typedef LIBGTO_ENUM {
+  LIBGTO_SUCCESS = 0,
+  LIBGTO_INVALID_ARGUMENT = 1,
+  LIBGTO_UNSUPPORTED = 2,
+  LIBGTO_ALLOCATION_FAILED = 3,
+  LIBGTO_BUFFER_TOO_SMALL = 4,
+  LIBGTO_NUMERICAL_FAILURE = 5,
+  LIBGTO_RESOURCE_LIMIT = 6
+} libgto_status;
+typedef LIBGTO_ENUM {
+  LIBGTO_CARTESIAN = 0,
+  LIBGTO_PURE = 1
+} libgto_representation;
+typedef LIBGTO_ENUM {
+  LIBGTO_UNNORMALIZED = 0,
+  LIBGTO_NORMALIZED_PRIMITIVES = 1
+} libgto_normalization;
+typedef LIBGTO_ENUM {
+  LIBGTO_CONTRACT_AUTO = 0,
+  LIBGTO_AB_FIRST = 1,
+  LIBGTO_CD_FIRST = 2
+} libgto_contraction_order;
 typedef struct {
   int angular_momentum;
   double center[3]; /* Bohr */
@@ -44,8 +52,17 @@ typedef struct {
    Cartesian: x descending then y descending, d=xx,xy,xz,yy,yz,zz.
    Pure: m=-l..l without the Condon--Shortley phase, p=y,z,x; d=sqrt(3)xy,sqrt(3)yz,(2zz-xx-yy)/2,
    sqrt(3)xz,sqrt(3)(xx-yy)/2 before primitive normalization. */
-typedef LIBGTO_ENUM{LIBGTO_PRECISION_AUTO = 0,
-                    LIBGTO_PRECISION_REFERENCE = 1} libgto_precision_policy;
+/* AUTO selects monitored FP64, long-double evaluation, or local fixed-precision
+   reconstruction according to numerical features and shape. Pair preparation and
+   selected auxiliary stages retain long double. The f/g path uses wide
+   auxiliaries/weights, monitored FP64 angular products, and raw-input 512-bit
+   reconstruction. REFERENCE uses unmerged long-double evaluation; it is not an
+   exact oracle for arbitrary cancellation. Long-double precision is platform
+   dependent. */
+typedef LIBGTO_ENUM {
+  LIBGTO_PRECISION_AUTO = 0,
+  LIBGTO_PRECISION_REFERENCE = 1
+} libgto_precision_policy;
 typedef struct {
   uint64_t wide_calls, fp64_calls, fp64_fallbacks, fp64_primitive_quartets;
 } libgto_precision_statistics;
@@ -82,17 +99,16 @@ libgto_status libgto_workspace_reserve(libgto_workspace *, const libgto_pair *, 
    ordinary scalar call frames. Requirements include reconstruction storage when
    the immutable pair features select that AUTO path. */
 size_t libgto_workspace_bytes(const libgto_workspace *);
-/* Cumulative precision-path counters, including extra work before fallback.
-   Pair preparation retains wide arithmetic; auxiliary precision is selected
-   independently from angular and channel contraction precision.
-   The local roundoff indicator is conservative in tested cases, not a rigorous
-   certificate for every possible input. Wide projected fallback preserves
-   semantics; it is distinct from the explicit original REFERENCE policy. */
-/* Set policies only while the workspace/executor is idle. The reference policy
-   uses unmerged raw wide evaluation. Low kernels transform pure components
-   late; high-angular kernels may project E before contraction. */
+/* Set precision policies only while the workspace or batch is idle. Auxiliary,
+   angular and channel precision are selected independently. Low kernels transform
+   pure components late; high-angular kernels may project E before contraction.
+   AUTO's wide projected fallback differs from the unmerged REFERENCE path.
+   Local roundoff indicators are empirically validated, not rigorous certificates
+   for every possible input. */
 libgto_status libgto_workspace_set_precision(libgto_workspace *, libgto_precision_policy);
 libgto_status libgto_batch_set_precision(libgto_batch *, libgto_precision_policy);
+/* Cumulative path counters include extra work performed before fallback.
+   Query only while the workspace or batch is idle. */
 libgto_status libgto_workspace_precision_statistics(const libgto_workspace *,
                                                     libgto_precision_statistics *);
 libgto_status libgto_batch_precision_statistics(const libgto_batch *,

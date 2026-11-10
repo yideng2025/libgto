@@ -12,6 +12,7 @@ static const MP &mp_pi() {
   static const MP p = acos(MP(-1));
   return p;
 }
+
 static void fundamental(int L, const MP &T, MP *F) {
   if (T == 0) {
     for (int m = 0; m <= L; m++)
@@ -33,13 +34,14 @@ static void fundamental(int L, const MP &T, MP *F) {
     for (int m = L; m > 0; m--)
       F[m - 1] = (2 * T * F[m] + e) / (2 * m - 1);
   } else {
-    // For m<=8,T>=256 the omitted upper incomplete-Gamma tail is below1e-96
-    // relative, far below256-bit rounding, throughout the current s/p/d domain.
+    // For m <= 8 and T >= 256, the omitted upper incomplete-Gamma tail is below
+    // 1e-96 relative, below 256-bit rounding throughout the s/p/d domain.
     F[0] = sqrt(mp_pi()) / (2 * sqrt(T));
     for (int m = 0; m < L; m++)
       F[m + 1] = (2 * m + 1) * F[m] / (2 * T);
   }
 }
+
 static MP coefficient(const Shell &s, size_t p, size_t c) {
   MP v = s.raw_coefficients[p + s.k * c];
   if (s.norm == LIBGTO_UNNORMALIZED)
@@ -52,6 +54,7 @@ static MP coefficient(const Shell &s, size_t p, size_t c) {
     v *= 4 * MP(s.a[p]) / sqrt(MP(3));
   return v;
 }
+
 struct PairMP {
   MP p, K, P[3], E[1260], weight;
 };
@@ -65,9 +68,11 @@ static_assert(sizeof(SensitiveScratch) <= 1024 * 1024,
 void SensitiveDeleter::operator()(SensitiveScratch *p) const noexcept {
   delete p;
 }
+
 size_t sensitive_workspace_bytes() noexcept {
   return sizeof(SensitiveScratch);
 }
+
 void reserve_sensitive(libgto_workspace &w) {
   if (!w.precise) {
     auto p = std::unique_ptr<SensitiveScratch, SensitiveDeleter>(new SensitiveScratch);
@@ -159,6 +164,7 @@ static void build_pair(const libgto_pair &a, size_t p, size_t channel, bool pure
   }
   v.weight = coefficient(a.a, i, channel % a.a.c) * coefficient(a.b, j, channel / a.a.c);
 }
+
 void compute_sensitive(const libgto_pair &a, const libgto_pair &b, const libgto_eri_options &o,
                        libgto_workspace &w, double *out, const Layout &l) {
   require(l.L <= 8, LIBGTO_UNSUPPORTED);
@@ -254,8 +260,8 @@ void compute_sensitive(const libgto_pair &a, const libgto_pair &b, const libgto_
         }
       }
       for (size_t i = 0; i < l.g; i++) {
-        // Empirical residual-precision guard, deliberately sacrificing48bits from
-        // the working mantissa. Not an error certificate for arbitrary conditioning.
+        // The empirical residual-precision guard reserves 48 bits of the working
+        // mantissa. It is not an error certificate for arbitrary conditioning.
         MP bound = mass[i] * MP(P) * MP(Q) * ldexp(MP(1), -208),
            tol = absolute_tolerance + relative_tolerance * abs(sum[i]);
         require(bound < tol / 16, LIBGTO_NUMERICAL_FAILURE);

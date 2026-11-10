@@ -1,5 +1,3 @@
-
-
 static void pack_quadratic_linear(quadratic_linear::Packet &p, size_t k, const libgto_pair &a,
                                   const libgto_pair &b, size_t ip, size_t iq, double budget) {
   bool flip = a.a.l + a.b.l == 1;

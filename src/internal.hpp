@@ -20,24 +20,30 @@ inline void require(bool ok, libgto_status s = LIBGTO_INVALID_ARGUMENT) {
   if (!ok)
     throw Error{s};
 }
+
 inline size_t mul(size_t a, size_t b) {
   require(!b || a <= std::numeric_limits<size_t>::max() / b);
   return a * b;
 }
+
 inline size_t add(size_t a, size_t b) {
   require(a <= std::numeric_limits<size_t>::max() - b);
   return a + b;
 }
+
 inline int ncart(int l) {
   return (l + 1) * (l + 2) / 2;
 }
+
 constexpr int nh(int l) {
   return (l + 1) * (l + 2) * (l + 3) / 6;
 }
+
 constexpr int hi(int t, int u, int v) {
   int d = t + u + v;
   return d * (d + 1) * (d + 2) / 6 + t * (d + 1) - t * (t - 1) / 2 + u;
 }
+
 using Triple = std::array<int, 3>;
 std::vector<Triple> orbitals(int);
 std::vector<Triple> hermites(int);
@@ -69,6 +75,7 @@ struct Layout {
 inline size_t layout_payload(const Layout &l) {
   return add(mul(l.total, sizeof(Real)), mul(add(l.borrowed, l.fast), sizeof(double)));
 }
+
 inline size_t high_workspace_extra(const Layout &l) {
   size_t base = layout_payload(l);
   require(l.public_size.workspace_bytes >= base);
@@ -162,6 +169,7 @@ template <class F> libgto_status protect(F f) {
     return LIBGTO_NUMERICAL_FAILURE;
   }
 }
+
 inline double now() {
   return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
 }
@@ -184,13 +192,16 @@ struct libgto_pair {
   bool sensitive = false;
   size_t shape_hash = 0;
   std::vector<gto::Primitive> primitives;
+  // Within each primitive: E[h*N+cartPair]; weights[primitive+P*channel].
+  // Pure E has the same strides
+  // with the corresponding pure component count in place of N.
   std::vector<gto::Real> E, pure_E, weights;
   std::vector<uint64_t> E_mask, pure_mask;
   bool sparse_cart = false, sparse_pure = false;
   double weight_mass = 0;
   std::vector<double> norm_cart, norm_pure;
   std::vector<double> E64, pure_E64, weights64;
-  bool fp64_safe = true; /* E[h*N+cartPair], weights[primitive+P*channel] */
+  bool fp64_safe = true;
   gto::PairNumerics numerics;
 };
 struct libgto_workspace {

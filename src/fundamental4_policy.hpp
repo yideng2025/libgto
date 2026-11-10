@@ -39,6 +39,7 @@ static void high_boys(double t, double *f, bool omit_exp) {
     f[m + 1] = hi;
   }
 }
+
 static void boys64(double t, double *f, int policy) {
   if (t >= 32) {
     high_boys(t, f, policy >= 3);
@@ -59,6 +60,7 @@ static void boys64(double t, double *f, int policy) {
   for (int m = 4; m > 0; m--)
     f[m - 1] = (2 * t * f[m] + e) / (2 * m - 1);
 }
+
 static bool evaluate(double t, double *f) {
   if (!(t >= 0 && (t < 16 || (t >= 32 && t < 1e8))))
     return false;

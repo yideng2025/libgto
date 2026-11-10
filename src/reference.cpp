@@ -24,6 +24,7 @@ static void boys_real(unsigned m, Real T, Real *f) {
       f[n + 1] = ((2 * n + 1) * f[n] - e) / (2 * T);
   }
 }
+
 struct Angular {
   std::array<Triple, 165> h{};
   std::array<std::array<Triple, 6>, 3> cart{};
@@ -105,6 +106,7 @@ static void primitive(const libgto_pair &a, const libgto_pair &b, size_t p, size
     }
   }
 }
+
 static Real transform(int l, int row, int column) {
   if (!l)
     return 1;
@@ -126,6 +128,7 @@ static Real transform(int l, int row, int column) {
     return column == 0 ? s * .5L : (column == 3 ? -s * .5L : 0);
   }
 }
+
 void compute_reference(const libgto_pair &a, const libgto_pair &b, const libgto_eri_options &o,
                        libgto_workspace &w, double *out, const Layout &l) {
   w.stats = {};

@@ -1,11 +1,10 @@
-
-
 static bool single_p_panel_eligible(const libgto_pair &a, const libgto_pair &b,
                                     const libgto_eri_options &o, const Layout &l) {
   return l.L == 1 && !o.profile && a.fp64_safe && b.fp64_safe && !a.sensitive && !b.sensitive &&
          (l.cab > 1 || l.ccd > 1) && a.primitives.size() <= 64 && b.primitives.size() <= 64 &&
          a.primitives.size() * b.primitives.size() >= 8;
 }
+
 static bool contract_single_p_panel(const libgto_pair &a, const libgto_pair &b,
                                     const libgto_eri_options &o, libgto_workspace &w, double *out,
                                     const Layout &l) {

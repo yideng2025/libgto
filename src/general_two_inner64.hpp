@@ -1,4 +1,4 @@
-// Same compact-MD primitive G; only inner-channel precision/organization changes.
+// Contract compact-MD primitive G values with monitored FP64 inner channels.
 
 static bool two_p_panel_eligible(const libgto_pair &a, const libgto_pair &b,
                                  const libgto_eri_options &o, const Layout &l) {
@@ -6,6 +6,7 @@ static bool two_p_panel_eligible(const libgto_pair &a, const libgto_pair &b,
          !a.sensitive && !b.sensitive && (l.cab > 1 || l.ccd > 1) && a.primitives.size() <= 64 &&
          b.primitives.size() <= 64 && a.primitives.size() * b.primitives.size() >= 8;
 }
+
 static bool contract_two_p_panel(const libgto_pair &a, const libgto_pair &b,
                                  const libgto_eri_options &o, libgto_workspace &w, double *out,
                                  const Layout &l) {

@@ -41,6 +41,7 @@ static Shell copy_shell(const libgto_shell &v) {
   }
   return s;
 }
+
 static void prepare_numerics(libgto_pair &r) {
   auto &v = r.numerics;
   size_t P = r.primitives.size();
@@ -83,6 +84,7 @@ static void prepare_numerics(libgto_pair &r) {
     }
   }
 }
+
 void rounded_view(const std::vector<Real> &from, std::vector<double> &to, bool &safe) {
   to.resize(from.size());
   for (size_t i = 0; i < from.size(); i++) {
@@ -96,6 +98,7 @@ void rounded_view(const std::vector<Real> &from, std::vector<double> &to, bool &
       safe = false;
   }
 }
+
 static void prepare_views(libgto_pair *r) {
   // Coefficient-independent rounded geometry and exact eligibility predicate.
   // The immutable owned pair lifetime is also the validity lifetime of this view.
@@ -219,6 +222,7 @@ static bool contraction_norm_risk(const Shell &s) {
   }
   return false;
 }
+
 std::unique_ptr<libgto_pair> make_pair(const libgto_shell &a, const libgto_shell &b) {
   auto r = std::make_unique<libgto_pair>();
   r->a = copy_shell(a);

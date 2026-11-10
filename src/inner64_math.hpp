@@ -16,10 +16,12 @@ static Real bound(Real magnitude, size_t inner, size_t outer, size_t total, doub
        (1 + gamma(4, d));
   return v * (1 + gamma(8, r));
 }
+
 static void update(size_t n, double w, const double *in, double *out) {
   for (size_t i = 0; i < n; i++)
     out[i] += w * in[i];
 }
+
 static void outer(size_t n, Real w, const double *in, Real *out) {
   for (size_t i = 0; i < n; i++)
     out[i] += w * Real(in[i]);

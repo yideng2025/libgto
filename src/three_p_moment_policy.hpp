@@ -1,11 +1,9 @@
-// Private pp|ps/sp bounded joint-Gaussian degree-three moment panel.
+// Bounded pp|ps/sp joint-Gaussian degree-three moment panel.
 #include "internal.hpp"
 #include "boys_table.hpp"
 #include "fundamental3_policies.hpp"
 namespace three_p_moment {
 using gto::Real;
-
-
 
 struct Packet {
   double a[3][64], b[3][64], c[3][64], v[3][64], z[3][64], H[9][64], J[9][64], A[3][64], B[3][64],

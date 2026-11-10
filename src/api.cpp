@@ -18,9 +18,11 @@ const char *libgto_status_string(libgto_status s) {
     return "nonfinite numerical result or internal error";
   }
 }
+
 libgto_eri_options libgto_default_eri_options(void) {
   return {LIBGTO_CARTESIAN, LIBGTO_CONTRACT_AUTO, 0};
 }
+
 libgto_status libgto_pair_create(const libgto_shell *a, const libgto_shell *b, libgto_pair **out) {
   if (out)
     *out = nullptr;
@@ -29,9 +31,11 @@ libgto_status libgto_pair_create(const libgto_shell *a, const libgto_shell *b, l
     *out = gto::make_pair(*a, *b).release();
   });
 }
+
 void libgto_pair_destroy(libgto_pair *p) {
   delete p;
 }
+
 size_t libgto_pair_bytes(const libgto_pair *p) {
   if (!p)
     return 0;
@@ -46,6 +50,7 @@ size_t libgto_pair_bytes(const libgto_pair *p) {
           p->a.raw_coefficients.capacity() + p->b.raw_coefficients.capacity()) *
              sizeof(double);
 }
+
 libgto_status libgto_eri_requirements(const libgto_pair *a, const libgto_pair *b,
                                       const libgto_eri_options *o, libgto_requirements *out) {
   return gto::protect([&] {
@@ -56,6 +61,7 @@ libgto_status libgto_eri_requirements(const libgto_pair *a, const libgto_pair *b
       out->workspace_bytes = gto::add(out->workspace_bytes, gto::sensitive_workspace_bytes());
   });
 }
+
 libgto_status libgto_workspace_create(libgto_workspace **w) {
   if (w)
     *w = nullptr;
@@ -64,9 +70,11 @@ libgto_status libgto_workspace_create(libgto_workspace **w) {
     *w = new libgto_workspace;
   });
 }
+
 void libgto_workspace_destroy(libgto_workspace *w) {
   delete w;
 }
+
 libgto_status libgto_workspace_reserve(libgto_workspace *w, const libgto_pair *a,
                                        const libgto_pair *b, const libgto_eri_options *o) {
   return gto::protect([&] {
@@ -75,18 +83,21 @@ libgto_status libgto_workspace_reserve(libgto_workspace *w, const libgto_pair *a
     gto::reserve(*w, l.total, l.borrowed, l.fast, gto::needs_sensitive(*a, *b, l, w->policy));
   });
 }
+
 size_t libgto_workspace_bytes(const libgto_workspace *w) {
   return w ? gto::high_scratch_bytes(*w) + w->arena.capacity() * sizeof(gto::Real) +
                  (w->borrowed.capacity() + w->fast.capacity()) * sizeof(double) +
                  (w->precise ? gto::sensitive_workspace_bytes() : 0)
            : 0;
 }
+
 libgto_status libgto_workspace_set_precision(libgto_workspace *w, libgto_precision_policy p) {
   if (!w || (p != LIBGTO_PRECISION_AUTO && p != LIBGTO_PRECISION_REFERENCE))
     return LIBGTO_INVALID_ARGUMENT;
   w->policy = p;
   return LIBGTO_SUCCESS;
 }
+
 libgto_status libgto_batch_set_precision(libgto_batch *b, libgto_precision_policy p) {
   if (!b || (p != LIBGTO_PRECISION_AUTO && p != LIBGTO_PRECISION_REFERENCE))
     return LIBGTO_INVALID_ARGUMENT;
@@ -94,6 +105,7 @@ libgto_status libgto_batch_set_precision(libgto_batch *b, libgto_precision_polic
     w.policy = p;
   return LIBGTO_SUCCESS;
 }
+
 libgto_status libgto_workspace_precision_statistics(const libgto_workspace *w,
                                                     libgto_precision_statistics *out) {
   if (!w || !out)
@@ -101,6 +113,7 @@ libgto_status libgto_workspace_precision_statistics(const libgto_workspace *w,
   *out = w->precision;
   return LIBGTO_SUCCESS;
 }
+
 libgto_status libgto_batch_precision_statistics(const libgto_batch *b,
                                                 libgto_precision_statistics *out) {
   if (!b || !out)
@@ -114,12 +127,14 @@ libgto_status libgto_batch_precision_statistics(const libgto_batch *b,
   }
   return LIBGTO_SUCCESS;
 }
+
 libgto_status libgto_workspace_reconstruction_count(const libgto_workspace *w, uint64_t *out) {
   if (!w || !out)
     return LIBGTO_INVALID_ARGUMENT;
   *out = w->sensitive_calls;
   return LIBGTO_SUCCESS;
 }
+
 libgto_status libgto_batch_reconstruction_count(const libgto_batch *b, uint64_t *out) {
   if (!b || !out)
     return LIBGTO_INVALID_ARGUMENT;
@@ -128,12 +143,14 @@ libgto_status libgto_batch_reconstruction_count(const libgto_batch *b, uint64_t 
     *out += w.sensitive_calls;
   return LIBGTO_SUCCESS;
 }
+
 libgto_status libgto_workspace_statistics(const libgto_workspace *w, libgto_statistics *out) {
   if (!w || !out)
     return LIBGTO_INVALID_ARGUMENT;
   *out = w->stats;
   return LIBGTO_SUCCESS;
 }
+
 libgto_status libgto_eri(const libgto_pair *a, const libgto_pair *b, const libgto_eri_options *o,
                          libgto_workspace *w, double *out, size_t n) {
   return gto::protect([&] {
@@ -144,6 +161,7 @@ libgto_status libgto_eri(const libgto_pair *a, const libgto_pair *b, const libgt
     gto::compute(*a, *b, *o, *w, out, l);
   });
 }
+
 libgto_status libgto_eri_view(const libgto_pair *a, const libgto_pair *b,
                               const libgto_eri_options *o, libgto_workspace *w, const double **out,
                               size_t *n) {
@@ -161,6 +179,7 @@ libgto_status libgto_eri_view(const libgto_pair *a, const libgto_pair *b,
     *n = l.borrowed;
   });
 }
+
 libgto_status libgto_boys(unsigned m, double t, double *out, size_t n) {
   return gto::protect([&] {
     gto::require(m <= 8 && std::isfinite(t) && t >= 0 && out);
@@ -168,9 +187,11 @@ libgto_status libgto_boys(unsigned m, double t, double *out, size_t n) {
     gto::boys(m, t, out);
   });
 }
+
 libgto_batch_options libgto_default_batch_options(void) {
   return {1, 64, 1024 * 1024, 64 * 1024 * 1024};
 }
+
 libgto_status libgto_batch_create(const libgto_batch_options *o, libgto_batch **out) {
   if (out)
     *out = nullptr;
@@ -188,9 +209,11 @@ libgto_status libgto_batch_create(const libgto_batch_options *o, libgto_batch **
     *out = b.release();
   });
 }
+
 void libgto_batch_destroy(libgto_batch *b) {
   delete b;
 }
+
 size_t libgto_batch_workspace_bytes(const libgto_batch *b) {
   size_t n = 0;
   if (b)
@@ -198,9 +221,11 @@ size_t libgto_batch_workspace_bytes(const libgto_batch *b) {
       n += libgto_workspace_bytes(&w);
   return n;
 }
+
 libgto_status libgto_batch_compute(libgto_batch *b, const libgto_eri_task *t, size_t n) {
   return gto::protect([&] { gto::execute_batch(b, t, n); });
 }
+
 size_t libgto_batch_binding_bytes(const libgto_batch *b) {
   return b ? (sizeof(b->plans) + sizeof(b->plan_index)) +
                  b->bindings.capacity() * sizeof(gto::BlockBinding) +
@@ -208,6 +233,7 @@ size_t libgto_batch_binding_bytes(const libgto_batch *b) {
                  b->parallel_layouts.capacity() * sizeof(gto::Layout)
            : 0;
 }
+
 libgto_status libgto_batch_set_binding_limits(libgto_batch *b, size_t count, size_t bytes) {
   return gto::protect([&] {
     gto::require(b);
@@ -225,6 +251,7 @@ libgto_status libgto_batch_set_binding_limits(libgto_batch *b, size_t count, siz
     b->binding_byte_limit = bytes;
   });
 }
+
 libgto_status libgto_batch_binding_statistics(const libgto_batch *b,
                                               libgto_binding_statistics *out) {
   if (!b || !out)
